@@ -1,0 +1,19 @@
+**[0:00 - 0:35 | Slide 1: O Problema]**
+> "Boa tarde, banca! Olhem para o cronograma oficial deste nosso Hackathon aqui no AKCIT Camp: o congelamento das entregas é às 15h30, os Pitches começam às 16h00 e o encerramento é às 18h30[cite: 6]. Mas o que acontece no mundo real quando o credenciamento atrasa 20 minutos e o almoço estoura mais 25? 
+> No mercado de eventos, 45 minutos de atraso significam duas coisas: ou você estoura o horário limite do espaço e paga milhares de reais em multa e hora extra de equipe técnica, ou você corta no grito o tempo da atração principal — prejudicando o Pitch das equipes, o Keynote de um patrocinador Master ou a mensagem principal de uma conferência."
+
+**[0:35 - 1:05 | Slide 2: A Solução e Centralidade da IA]**
+> "Para resolver isso, criamos o **Stage Manager AI**: um agente autônomo de gestão de crise e cronograma em tempo real. 
+> Por que uma planilha comum não resolve isso? Porque uma planilha não sabe a diferença cultural e contratual entre um Hackathon, um Summit Corporativo e um Culto de Igreja. O nosso agente sabe que em um Hackathon o tempo de código e o Pitch têm Peso 5 e são sagrados, mas sabe que um Coffee Break de 30 minutos pode ser convertido em serviço *grab-and-go* na bancada, recuperando 20 minutos sem parar o evento."
+
+**[1:05 - 2:15 | Slides 3 e 4: Fluxo do Agente + Demo na Tela]**
+> *(Mudar para o protótipo funcionando)*
+> "Vou mostrar isso funcionando na prática enquanto explico a engenharia do nosso agente:
+> 1. **Nos Inputs:** O agente recebe o atraso acumulado — vou simular aqui **45 minutos de atraso** — junto com a matriz da programação, os pisos físicos de duração mínima de cada bloco, os pesos de 1 a 5 e o contexto de Regras Culturais do evento.
+> 2. **Na Lógica e Guardrails:** Sabemos que LLMs puras alucinam fazendo contas de somar horários. Por isso criamos uma arquitetura neuro-simbólica híbrida: primeiro, nosso motor matemático determinístico calcula em milissegundos a folga segura e trava os limites físicos. Em seguida, acionamos o Agente de IA, que analisa o contexto cultural e decide onde cortar cada minuto sem violar os *Guardrails* de tempo mínimo.
+> 3. **Nos Outputs:** Em segundos, o agente entrega a nova grade cravando o horário final de encerramento em 18h30 e gera as **Diretrizes Táticas de Palco** prontas para o produtor enviar para o técnico de som, apresentadores e catering. E se mudarmos o cenário aqui em cima para uma Conferência de Igreja ou Summit Corporativo, o agente muda completamente a estratégia de corte respeitando o novo contexto."
+
+**[2:15 - 2:45 | Slide 5: Diferencial e Viabilidade de Negócio]**
+> "Nosso modelo de negócio ataca o mercado B2B em três frentes: entrada via PLG com **Pay-per-Event** (passe único por evento para produtores independentes), **Assinatura SaaS** para agências de Live Marketing e grandes igrejas com eventos semanais, e **Licenciamento de API** para plataformas como Sympla e Even3. Como o cálculo pesado roda localmente a custo zero e só acionamos tokens na decisão tática, nosso *unit economics* tem margem superior a 85%."
+
+**[2:45 - 3:00 | Slide 6: Equipe e Fechamento]**
