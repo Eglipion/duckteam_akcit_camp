@@ -1,0 +1,1140 @@
+import React, { useState, useMemo } from 'react';
+import {
+  Clock,
+  AlertTriangle,
+  Sparkles,
+  CheckCircle2,
+  Sliders,
+  Plus,
+  Trash2,
+  Play,
+  Check,
+  RotateCcw,
+  ChevronRight,
+  ShieldAlert,
+  Cpu,
+  Church,
+  Briefcase,
+  Code2,
+  Info,
+  ArrowRight,
+  Flame,
+  Lock,
+  Edit3,
+  FileJson,
+  Zap
+} from 'lucide-react';
+
+// ==========================================
+// PRESET TEMPLATES (PERFIS DE EVENTO)
+// ==========================================
+const EVENT_PRESETS = {
+  hackathon: {
+    id: 'hackathon',
+    nome: 'Hackathon Tech',
+    icone: 'Code2',
+    horarioInicio: '09:00',
+    regrasCulturais:
+      'Prioridade máxima e inegociável para o tempo de mão na massa (Hacking) e para a Apresentação dos Pitches Finais aos jurados (Peso 5). Palestras de abertura, falas institucionais e dinâmicas de quebra-gelo podem sofrer cortes agressivos. Coffee breaks podem ser convertidos em formato "grab-and-go" (serviço contínuo na bancada sem parar o relógio) para absorver atrasos.',
+    cronograma: [
+      { id: 1, atividade: 'Credenciamento & Welcome Coffee', duracaoPrevista: 45, duracaoMinima: 20, peso: 2, status: 'concluido' },
+      { id: 2, atividade: 'Cerimônia de Abertura & Regras do Desafio', duracaoPrevista: 40, duracaoMinima: 15, peso: 3, status: 'em_andamento' },
+      { id: 3, atividade: 'Keynote Patrocinador Master', duracaoPrevista: 30, duracaoMinima: 15, peso: 4, status: 'pendente' },
+      { id: 4, atividade: 'Formação de Equipes & Ideação Guiada', duracaoPrevista: 45, duracaoMinima: 20, peso: 2, status: 'pendente' },
+      { id: 5, atividade: 'Bloco Principal: Hacking & Mentoria', duracaoPrevista: 180, duracaoMinima: 150, peso: 5, status: 'pendente' },
+      { id: 6, atividade: 'Pausa para Almoço / Networking', duracaoPrevista: 60, duracaoMinima: 30, peso: 2, status: 'pendente' },
+      { id: 7, atividade: 'Coffee Break da Tarde & Sorteio de Brindes', duracaoPrevista: 30, duracaoMinima: 5, peso: 1, status: 'pendente' },
+      { id: 8, atividade: 'Apresentação dos Pitches & Banca Avaliadora', duracaoPrevista: 90, duracaoMinima: 80, peso: 5, status: 'pendente' },
+      { id: 9, atividade: 'Premiação e Encerramento', duracaoPrevista: 30, duracaoMinima: 15, peso: 4, status: 'pendente' }
+    ]
+  },
+  igreja: {
+    id: 'igreja',
+    nome: 'Culto / Conferência de Igreja',
+    icone: 'Church',
+    horarioInicio: '19:00',
+    regrasCulturais:
+      'A Mensagem Principal (Pregação) e o momento de Apelo/Ministração final têm Peso 5 e não devem ser cortados para não quebrar a fluidez espiritual. Avisos paroquiais podem ser reduzidos a um QR Code no telão (corte máximo). O bloco de Louvor inicial pode ter 1 ou 2 músicas removidas do repertório ou transições instrumentais encurtadas caso haja atraso na abertura das portas.',
+    cronograma: [
+      { id: 1, atividade: 'Prelúdio Musical & Recepção', duracaoPrevista: 15, duracaoMinima: 5, peso: 1, status: 'concluido' },
+      { id: 2, atividade: 'Boas-vindas & Quebra-gelo aos Visitantes', duracaoPrevista: 15, duracaoMinima: 5, peso: 2, status: 'em_andamento' },
+      { id: 3, atividade: 'Tempo de Louvor e Adoração (5 músicas)', duracaoPrevista: 35, duracaoMinima: 20, peso: 4, status: 'pendente' },
+      { id: 4, atividade: 'Vídeo de Avisos, Agenda & Ofertório', duracaoPrevista: 15, duracaoMinima: 5, peso: 2, status: 'pendente' },
+      { id: 5, atividade: 'Participação Especial / Testemunho', duracaoPrevista: 15, duracaoMinima: 5, peso: 3, status: 'pendente' },
+      { id: 6, atividade: 'Mensagem Principal (Pregação)', duracaoPrevista: 50, duracaoMinima: 45, peso: 5, status: 'pendente' },
+      { id: 7, atividade: 'Oração Final, Ministração & Bênção', duracaoPrevista: 15, duracaoMinima: 10, peso: 5, status: 'pendente' }
+    ]
+  },
+  corporativo: {
+    id: 'corporativo',
+    nome: 'Summit Corporativo / Executivo',
+    icone: 'Briefcase',
+    horarioInicio: '14:00',
+    regrasCulturais:
+      'Keynotes com convidados internacionais/externos e o Painel de CEOs possuem Peso 5 (contratos rígidos de tempo e voo). Para compensar atrasos, sessões de Perguntas e Respostas (Q&A) podem ser convertidas em envio de dúvidas por aplicativo, falas de abertura de diretores internos devem ser enxugadas, e intervalos de networking podem ser comprimidos.',
+    cronograma: [
+      { id: 1, atividade: 'Credenciamento & Welcome Drink', duracaoPrevista: 30, duracaoMinima: 15, peso: 2, status: 'concluido' },
+      { id: 2, atividade: 'Fala de Abertura: Diretoria Interna', duracaoPrevista: 25, duracaoMinima: 10, peso: 2, status: 'em_andamento' },
+      { id: 3, atividade: 'Keynote Internacional: Futuro do Mercado', duracaoPrevista: 45, duracaoMinima: 40, peso: 5, status: 'pendente' },
+      { id: 4, atividade: 'Sessão de Q&A (Perguntas da Plateia)', duracaoPrevista: 20, duracaoMinima: 0, peso: 1, status: 'pendente' },
+      { id: 5, atividade: 'Painel de Clientes & Cases de Sucesso', duracaoPrevista: 45, duracaoMinima: 30, peso: 4, status: 'pendente' },
+      { id: 6, atividade: 'Coffee Break & Networking Executivo', duracaoPrevista: 35, duracaoMinima: 15, peso: 2, status: 'pendente' },
+      { id: 7, atividade: 'Fireside Chat: CEO & Investidores', duracaoPrevista: 40, duracaoMinima: 35, peso: 5, status: 'pendente' },
+      { id: 8, atividade: 'Sorteio, Agradecimentos & Coquetel', duracaoPrevista: 20, duracaoMinima: 5, peso: 1, status: 'pendente' }
+    ]
+  }
+};
+
+// ==========================================
+// UTILITÁRIOS DE TEMPO
+// ==========================================
+function timeToMinutes(timeStr) {
+  const [h, m] = (timeStr || '09:00').split(':').map(Number);
+  return h * 60 + m;
+}
+
+function minutesToTime(totalMinutes) {
+  const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+  const h = Math.floor(normalized / 60);
+  const m = Math.floor(normalized % 60);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+export default function App() {
+  // Estado Principal do Evento
+  const [selectedPreset, setSelectedPreset] = useState('hackathon');
+  const [horarioInicio, setHorarioInicio] = useState(EVENT_PRESETS.hackathon.horarioInicio);
+  const [regrasCulturais, setRegrasCulturais] = useState(EVENT_PRESETS.hackathon.regrasCulturais);
+  const [cronograma, setCronograma] = useState(EVENT_PRESETS.hackathon.cronograma);
+
+  // Estado do Simulador de Atraso
+  const [atrasoMinutos, setAtrasoMinutos] = useState(35);
+  const [motivoAtraso, setMotivoAtraso] = useState('Atraso na liberação do som do palco e fila no credenciamento');
+
+  // Estado do Agente de IA & Resultados
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
+  const [showJsonModal, setShowJsonModal] = useState(false);
+  const [novaAtividadeTexto, setNovaAtividadeTexto] = useState('');
+
+  // Trocar Preset de Evento
+  const handleSelectPreset = (presetKey) => {
+    const preset = EVENT_PRESETS[presetKey];
+    setSelectedPreset(presetKey);
+    setHorarioInicio(preset.horarioInicio);
+    setRegrasCulturais(preset.regrasCulturais);
+    setCronograma(preset.cronograma.map(item => ({ ...item })));
+    setAiResult(null);
+  };
+
+  // Cálculos Matemáticos em Tempo Real (Motor Lógico Pré-IA)
+  const metricas = useMemo(() => {
+    let cursorOriginal = timeToMinutes(horarioInicio);
+    let cursorComAtraso = timeToMinutes(horarioInicio);
+    let atrasoInserido = false;
+
+    const itensComHorario = cronograma.map((item) => {
+      const inicioOriginal = minutesToTime(cursorOriginal);
+      const fimOriginal = minutesToTime(cursorOriginal + item.duracaoPrevista);
+      cursorOriginal += item.duracaoPrevista;
+
+      // O atraso passa a impactar a partir do item 'em_andamento' ou primeiro 'pendente'
+      if (!atrasoInserido && (item.status === 'em_andamento' || item.status === 'pendente')) {
+        cursorComAtraso += atrasoMinutos;
+        atrasoInserido = true;
+      }
+      const inicioReal = minutesToTime(cursorComAtraso);
+      const fimReal = minutesToTime(cursorComAtraso + item.duracaoPrevista);
+      cursorComAtraso += item.duracaoPrevista;
+
+      const folgaTotalItem = Math.max(0, item.duracaoPrevista - item.duracaoMinima);
+
+      return {
+        ...item,
+        inicioOriginal,
+        fimOriginal,
+        inicioReal,
+        fimReal,
+        folga: item.status === 'pendente' ? folgaTotalItem : 0
+      };
+    });
+
+    const pendentes = itensComHorario.filter((i) => i.status === 'pendente');
+    const folgaTotalPendentes = pendentes.reduce((acc, cur) => acc + cur.folga, 0);
+    const folgaSemPeso5 = pendentes
+      .filter((i) => i.peso < 5)
+      .reduce((acc, cur) => acc + cur.folga, 0);
+
+    const duracaoTotalPrevista = cronograma.reduce((acc, cur) => acc + cur.duracaoPrevista, 0);
+    const horarioEncerramentoPrevisto = minutesToTime(timeToMinutes(horarioInicio) + duracaoTotalPrevista);
+    const horarioEncerramentoProjetadoSemAcao = minutesToTime(
+      timeToMinutes(horarioInicio) + duracaoTotalPrevista + atrasoMinutos
+    );
+
+    const deficitInabsorvivel = Math.max(0, atrasoMinutos - folgaTotalPendentes);
+    const precisaTocarPeso5 = atrasoMinutos > folgaSemPeso5;
+
+    return {
+      itensComHorario,
+      folgaTotalPendentes,
+      folgaSemPeso5,
+      duracaoTotalPrevista,
+      horarioEncerramentoPrevisto,
+      horarioEncerramentoProjetadoSemAcao,
+      deficitInabsorvivel,
+      precisaTocarPeso5
+    };
+  }, [cronograma, horarioInicio, atrasoMinutos]);
+
+  // Manipuladores de Edição da Tabela
+  const updateItem = (id, field, value) => {
+    setCronograma((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        const updated = { ...item, [field]: value };
+        if (field === 'duracaoPrevista' && updated.duracaoMinima > value) {
+          updated.duracaoMinima = value;
+        }
+        if (field === 'duracaoMinima' && value > updated.duracaoPrevista) {
+          updated.duracaoMinima = updated.duracaoPrevista;
+        }
+        return updated;
+      })
+    );
+    setAiResult(null);
+  };
+
+  const removeItem = (id) => {
+    setCronograma((prev) => prev.filter((item) => item.id !== id));
+    setAiResult(null);
+  };
+
+  const addItem = (e) => {
+    e.preventDefault();
+    if (!novaAtividadeTexto.trim()) return;
+    const novoId = cronograma.length > 0 ? Math.max(...cronograma.map((i) => i.id)) + 1 : 1;
+    setCronograma((prev) => [
+      ...prev,
+      {
+        id: novoId,
+        atividade: novaAtividadeTexto.trim(),
+        duracaoPrevista: 30,
+        duracaoMinima: 15,
+        peso: 3,
+        status: 'pendente'
+      }
+    ]);
+    setNovaAtividadeTexto('');
+    setAiResult(null);
+  };
+
+  // ==========================================
+  // ALGORITMO MATEMÁTICO HÍBRIDO (FALLBACK E VALIDAÇÃO)
+  // ==========================================
+  const gerarPlanoDeterministico = () => {
+    let restanteParaCortar = atrasoMinutos;
+    const cortesPorId = {};
+
+    // Ordena atividades pendentes por menor peso primeiro (1 -> 5) e maior folga
+    const pendentesOrdenados = [...cronograma]
+      .filter((i) => i.status === 'pendente')
+      .sort((a, b) => a.peso - b.peso || (b.duracaoPrevista - b.duracaoMinima) - (a.duracaoPrevista - a.duracaoMinima));
+
+    pendentesOrdenados.forEach((item) => {
+      const folgaMax = Math.max(0, item.duracaoPrevista - item.duracaoMinima);
+      if (restanteParaCortar > 0 && folgaMax > 0) {
+        const corte = Math.min(restanteParaCortar, folgaMax);
+        cortesPorId[item.id] = corte;
+        restanteParaCortar -= corte;
+      } else {
+        cortesPorId[item.id] = 0;
+      }
+    });
+
+    const ajustes = cronograma
+      .filter((i) => i.status === 'pendente')
+      .map((item) => {
+        const corte = cortesPorId[item.id] || 0;
+        const novaDuracao = item.duracaoPrevista - corte;
+        let acaoTatica = 'Manter duração original intacta (bloco prioritário protegido).';
+
+        if (corte > 0) {
+          const nomeLower = item.atividade.toLowerCase();
+          if (nomeLower.includes('coffee') || nomeLower.includes('almoço') || nomeLower.includes('pausa')) {
+            acaoTatica = `Comprimir intervalo em ${corte} min. Converter para serviço contínuo ("grab-and-go") e avisar no microfone 5 min antes do retorno.`;
+          } else if (nomeLower.includes('louvor') || nomeLower.includes('música')) {
+            acaoTatica = `Reduzir ${corte} min do bloco musical (remover ${corte >= 10 ? '2 músicas' : '1 música'} do repertório e fazer transição direta).`;
+          } else if (nomeLower.includes('avisos') || nomeLower.includes('sorteio') || nomeLower.includes('abertura')) {
+            acaoTatica = `Corte rápido de ${corte} min: exibir informações via QR Code no telão principal e ir direto ao ponto central.`;
+          } else if (nomeLower.includes('q&a') || nomeLower.includes('perguntas')) {
+            acaoTatica = `Reduzir ${corte} min da sessão de perguntas no microfone; direcionar dúvidas para resposta online pós-evento.`;
+          } else {
+            acaoTatica = `Sinalizar ao responsável no palco que o bloco terá ${novaDuracao} min (redução de ${corte} min) com cronômetro regressivo ativo.`;
+          }
+        }
+
+        return {
+          id: item.id,
+          nova_duracao_min: novaDuracao,
+          corte_min: corte,
+          acao_tatica: acaoTatica
+        };
+      });
+
+    const totalCortado = Object.values(cortesPorId).reduce((a, b) => a + b, 0);
+    const sobraAtraso = Math.max(0, atrasoMinutos - totalCortado);
+
+    return {
+      resumo_estrategia:
+        sobraAtraso === 0
+          ? `Absorvemos 100% dos ${atrasoMinutos} minutos de atraso comprimindo blocos de menor peso (pesos 1 a 3) e preservando integralmente o núcleo principal do evento.`
+          : `Foram absorvidos ${totalCortado} min (limite físico máximo sem violar durações mínimas). O evento encerrará com ${sobraAtraso} min de estouro em relação ao horário original.`,
+      alerta_estouro:
+        sobraAtraso > 0
+          ? `Atenção: O atraso (${atrasoMinutos}m) supera a folga elástica total disponível nas atividades pendentes (${totalCortado}m). Restam ${sobraAtraso}m que estourarão o horário final.`
+          : '',
+      ajustes,
+      origem: 'Motor Híbrido'
+    };
+  };
+
+  // ==========================================
+  // INTEGRAÇÃO COM A API GEMINI (STAGE MANAGER AGENT)
+  // ==========================================
+  const acionarAgenteIA = async () => {
+    setIsCalculating(true);
+    setAiResult(null);
+
+    const systemPrompt = `Você é um Diretor de Palco (Stage Manager) e Especialista Sênior em Logística de Eventos em Tempo Real.
+Sua missão é receber o cronograma de um evento que sofreu um atraso de ${atrasoMinutos} minutos e redistribuir os cortes de tempo apenas nas atividades com status "pendente".
+
+REGRAS INEGOCIÁVEIS:
+1. NUNCA reduza uma atividade abaixo de sua "duracaoMinima".
+2. O corte máximo de um item é (duracaoPrevista - duracaoMinima).
+3. Priorize cortar itens de Peso 1, 2 e 3. Itens de Peso 4 só devem ser cortados se necessário. Itens de Peso 5 são sagrados e SÓ podem sofrer corte se todas as outras folgas já tiverem sido esgotadas.
+4. A soma de "corte_min" de todas as atividades pendentes deve tentar igualar exatamente ${atrasoMinutos} minutos (ou o máximo possível se a folga total for menor que o atraso).
+5. Use as "Regras Culturais do Evento" e o "Motivo do Atraso" para criar recomendações práticas, realistas e diretas de palco no campo "acao_tatica" em português (pt-BR).`;
+
+    const payloadContext = {
+      perfil_evento: EVENT_PRESETS[selectedPreset]?.nome || 'Evento Personalizado',
+      regras_culturais: regrasCulturais,
+      atraso_acumulado_minutos: atrasoMinutos,
+      motivo_do_atraso: motivoAtraso,
+      folga_total_disponivel_pendentes: metricas.folgaTotalPendentes,
+      atividades_pendentes: cronograma
+        .filter((i) => i.status === 'pendente')
+        .map((i) => ({
+          id: i.id,
+          atividade: i.atividade,
+          duracaoPrevista: i.duracaoPrevista,
+          duracaoMinima: i.duracaoMinima,
+          folgaMaximaCortavel: i.duracaoPrevista - i.duracaoMinima,
+          pesoImportancia: i.peso
+        }))
+    };
+
+    const apiKey = '';
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+    const payload = {
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              text: `Calcule o plano de recuperação de cronograma para o seguinte cenário em JSON:\n${JSON.stringify(
+                payloadContext,
+                null,
+                2
+              )}`
+            }
+          ]
+        }
+      ],
+      systemInstruction: {
+        parts: [{ text: systemPrompt }]
+      },
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'OBJECT',
+          properties: {
+            resumo_estrategia: { type: 'STRING' },
+            alerta_estouro: { type: 'STRING' },
+            ajustes: {
+              type: 'ARRAY',
+              items: {
+                type: 'OBJECT',
+                properties: {
+                  id: { type: 'INTEGER' },
+                  nova_duracao_min: { type: 'INTEGER' },
+                  corte_min: { type: 'INTEGER' },
+                  acao_tatica: { type: 'STRING' }
+                },
+                propertyOrdering: ['id', 'nova_duracao_min', 'corte_min', 'acao_tatica']
+              }
+            }
+          },
+          propertyOrdering: ['resumo_estrategia', 'alerta_estouro', 'ajustes']
+        }
+      }
+    };
+
+    // Função de chamada com Exponential Backoff
+    const fetchWithRetry = async (retries = 3, delay = 1000) => {
+      for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+          const res = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error(`HTTP status ${res.status}`);
+          const data = await res.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            return JSON.parse(text);
+          }
+          throw new Error('Resposta sem conteúdo JSON válido');
+        } catch (err) {
+          if (attempt === retries - 1) throw err;
+          await new Promise((r) => setTimeout(r, delay * Math.pow(2, attempt)));
+        }
+      }
+    };
+
+    try {
+      const parsed = await fetchWithRetry(2, 800);
+      // Garantir consistência matemática nos limites mínimos caso o LLM erre algum cálculo
+      const ajustesNormalizados = cronograma
+        .filter((i) => i.status === 'pendente')
+        .map((item) => {
+          const found = parsed.ajustes?.find((a) => Number(a.id) === Number(item.id));
+          if (!found) {
+            return {
+              id: item.id,
+              nova_duracao_min: item.duracaoPrevista,
+              corte_min: 0,
+              acao_tatica: 'Manter conforme previsto.'
+            };
+          }
+          const maxCorte = Math.max(0, item.duracaoPrevista - item.duracaoMinima);
+          const corteSeguro = Math.min(maxCorte, Math.max(0, Number(found.corte_min) || 0));
+          return {
+            id: item.id,
+            nova_duracao_min: item.duracaoPrevista - corteSeguro,
+            corte_min: corteSeguro,
+            acao_tatica: found.acao_tatica || 'Ajuste de tempo aplicado.'
+          };
+        });
+
+      setAiResult({
+        resumo_estrategia: parsed.resumo_estrategia,
+        alerta_estouro: parsed.alerta_estouro || '',
+        ajustes: ajustesNormalizados,
+        origem: 'Gemini 3 Flash (Stage Manager AI)'
+      });
+    } catch (error) {
+      // Fallback determinístico inteligente se a API falhar
+      const fallbackPlan = gerarPlanoDeterministico();
+      setAiResult(fallbackPlan);
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
+  // Aplicar os ajustes sugeridos pela IA na tabela principal
+  const aplicarNovoCronograma = () => {
+    if (!aiResult) return;
+    setCronograma((prev) =>
+      prev.map((item) => {
+        const ajuste = aiResult.ajustes.find((a) => Number(a.id) === Number(item.id));
+        if (ajuste && item.status === 'pendente') {
+          return {
+            ...item,
+            duracaoPrevista: ajuste.nova_duracao_min
+          };
+        }
+        return item;
+      })
+    );
+    const totalCortado = aiResult.ajustes.reduce((acc, cur) => acc + (cur.corte_min || 0), 0);
+    setAtrasoMinutos((prev) => Math.max(0, prev - totalCortado));
+    setAiResult(null);
+  };
+
+  // Renderizador de Ícone do Preset
+  const renderPresetIcon = (iconName, className = 'w-4 h-4') => {
+    switch (iconName) {
+      case 'Code2':
+        return <Code2 className={className} />;
+      case 'Church':
+        return <Church className={className} />;
+      case 'Briefcase':
+        return <Briefcase className={className} />;
+      default:
+        return <Sparkles className={className} />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500/30 selection:text-indigo-200 pb-16">
+      {/* HEADER BAR */}
+      <header className="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-inner">
+              <Cpu className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-bold tracking-tight text-white">StageManager AI</h1>
+                <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Protótipo Híbrido
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Agente Inteligente de Adaptação e Rebalanceamento de Cronograma em Tempo Real
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+            <button
+              onClick={() => setShowJsonModal(!showJsonModal)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition"
+            >
+              <FileJson className="w-3.5 h-3.5 text-indigo-400" />
+              {showJsonModal ? 'Ocultar Payload JSON' : 'Ver Payload JSON'}
+            </button>
+            <button
+              onClick={() => handleSelectPreset(selectedPreset)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition"
+              title="Restaurar valores originais do perfil"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+              Resetar Grade
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+        {/* MODAL / DRAWER DE INSPEÇÃO DO JSON (PARA O DESENVOLVEDOR) */}
+        {showJsonModal && (
+          <div className="bg-slate-900/90 border border-indigo-500/30 rounded-xl p-4 shadow-xl animate-fadeIn">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                <FileJson className="w-4 h-4" /> Estrutura de Contexto Enviada ao Agente (JSON)
+              </span>
+              <button
+                onClick={() => setShowJsonModal(false)}
+                className="text-xs text-slate-400 hover:text-white"
+              >
+                Fechar
+              </button>
+            </div>
+            <pre className="text-[11px] font-mono text-slate-300 bg-slate-950 p-3 rounded-lg overflow-x-auto max-h-60 border border-slate-800">
+              {JSON.stringify(
+                {
+                  perfil_evento: EVENT_PRESETS[selectedPreset]?.nome,
+                  horario_inicio: horarioInicio,
+                  atraso_acumulado_min: atrasoMinutos,
+                  regras_culturais: regrasCulturais,
+                  cronograma
+                },
+                null,
+                2
+              )}
+            </pre>
+          </div>
+        )}
+
+        {/* SEÇÃO 1: SELETOR DE PERFIL DE EVENTO E REGRAS CULTURAIS */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Coluna Esquerda: Perfis de Evento */}
+          <div className="lg:col-span-5 bg-slate-900/60 border border-slate-800/90 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                  1. Perfil de Treinamento / Contexto
+                </h2>
+                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                  <Clock className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Início:</span>
+                  <input
+                    type="time"
+                    value={horarioInicio}
+                    onChange={(e) => setHorarioInicio(e.target.value)}
+                    className="bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-xs text-white font-mono focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-400 mb-4">
+                Selecione o arquétipo do evento. Cada formato possui prioridades e regras culturais distintas sobre o que pode ou não sofrer corte:
+              </p>
+
+              <div className="grid grid-cols-1 gap-2.5">
+                {Object.values(EVENT_PRESETS).map((preset) => {
+                  const active = selectedPreset === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      onClick={() => handleSelectPreset(preset.id)}
+                      className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center justify-between ${
+                        active
+                          ? 'bg-indigo-500/10 border-indigo-500/50 text-white shadow-sm'
+                          : 'bg-slate-950/60 border-slate-800/80 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`p-2 rounded-lg ${
+                            active ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400'
+                          }`}
+                        >
+                          {renderPresetIcon(preset.icone, 'w-4 h-4')}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-sm">{preset.nome}</div>
+                          <div className="text-[11px] text-slate-400">
+                            {preset.cronograma.length} blocos configurados • Início às {preset.horarioInicio}
+                          </div>
+                        </div>
+                      </div>
+                      <ChevronRight
+                        className={`w-4 h-4 transition-transform ${
+                          active ? 'text-indigo-400 translate-x-0.5' : 'text-slate-600'
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+              <span>Peso 5 = Intocável (Sagrado)</span>
+              <span>Peso 1 = Altamente Compressível</span>
+            </div>
+          </div>
+
+          {/* Coluna Direita: Diretrizes Culturais do Agente */}
+          <div className="lg:col-span-7 bg-slate-900/60 border border-slate-800/90 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <Edit3 className="w-3.5 h-3.5 text-indigo-400" />
+                  Regras Culturais & Balizadores do Evento (Prompt de Contexto)
+                </h2>
+                <span className="text-[11px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                  Editável em Tempo Real
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mb-3">
+                Explique ao agente as particularidades deste evento. Ele usará essas regras para decidir <strong>como</strong> cortar o tempo sem prejudicar a experiência:
+              </p>
+              <textarea
+                rows={4}
+                value={regrasCulturais}
+                onChange={(e) => setRegrasCulturais(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-sm text-slate-200 leading-relaxed focus:outline-none focus:border-indigo-500 transition resize-none"
+                placeholder="Descreva o que é sagrado no evento e o que pode ser adaptado..."
+              />
+            </div>
+
+            {/* Resumo Rápido de Horários e Elasticidade */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+              <div className="bg-slate-950/90 border border-slate-800/80 rounded-xl p-3">
+                <span className="text-[11px] text-slate-400 block">Término Previsto</span>
+                <span className="text-lg font-bold font-mono text-white">
+                  {metricas.horarioEncerramentoPrevisto}
+                </span>
+              </div>
+              <div className="bg-slate-950/90 border border-slate-800/80 rounded-xl p-3">
+                <span className="text-[11px] text-slate-400 block">Sem Intervenção</span>
+                <span className="text-lg font-bold font-mono text-amber-400">
+                  {metricas.horarioEncerramentoProjetadoSemAcao}
+                </span>
+              </div>
+              <div className="bg-slate-950/90 border border-slate-800/80 rounded-xl p-3">
+                <span className="text-[11px] text-slate-400 block">Folga Sem Peso 5</span>
+                <span className="text-lg font-bold font-mono text-emerald-400">
+                  {metricas.folgaSemPeso5} min
+                </span>
+              </div>
+              <div className="bg-slate-950/90 border border-slate-800/80 rounded-xl p-3">
+                <span className="text-[11px] text-slate-400 block">Folga Máxima Total</span>
+                <span className="text-lg font-bold font-mono text-indigo-400">
+                  {metricas.folgaTotalPendentes} min
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SEÇÃO 2: SIMULADOR DE ATRASO & ACIONAMENTO DO AGENTE */}
+        <section className="bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40 border border-slate-800 rounded-2xl p-5 shadow-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Controle de Minutos de Atraso */}
+            <div className="lg:col-span-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4" />
+                  2. Simular Atraso no Evento
+                </label>
+                <span className="text-xl font-bold font-mono text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-lg border border-amber-500/30">
+                  +{atrasoMinutos} min
+                </span>
+              </div>
+
+              <input
+                type="range"
+                min={5}
+                max={120}
+                step={5}
+                value={atrasoMinutos}
+                onChange={(e) => {
+                  setAtrasoMinutos(Number(e.target.value));
+                  setAiResult(null);
+                }}
+                className="w-full accent-amber-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+              />
+
+              <div className="flex items-center gap-1.5 pt-1">
+                {[15, 30, 45, 60, 90].map((val) => (
+                  <button
+                    key={val}
+                    onClick={() => {
+                      setAtrasoMinutos(val);
+                      setAiResult(null);
+                    }}
+                    className={`flex-1 py-1 rounded text-xs font-mono border transition ${
+                      atrasoMinutos === val
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    +{val}m
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Motivo do Atraso e Diagnóstico Matemático Pré-IA */}
+            <div className="lg:col-span-5 space-y-3">
+              <div>
+                <label className="text-xs font-medium text-slate-300 block mb-1">
+                  Ocorrência / Motivo do Atraso (Contexto para o Diretor de Palco):
+                </label>
+                <input
+                  type="text"
+                  value={motivoAtraso}
+                  onChange={(e) => setMotivoAtraso(e.target.value)}
+                  placeholder="Ex: Palestrante preso no trânsito, falha no projetor..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              {/* Barra de Diagnóstico do Motor Matemático */}
+              <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-3 flex items-start gap-2.5">
+                {metricas.deficitInabsorvivel > 0 ? (
+                  <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                ) : metricas.precisaTocarPeso5 ? (
+                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                )}
+                <div className="text-xs leading-relaxed">
+                  {metricas.deficitInabsorvivel > 0 ? (
+                    <span className="text-rose-300">
+                      <strong>Pré-Validação Matemática:</strong> O atraso (+{atrasoMinutos}m) supera a folga máxima de todas as atividades pendentes ({metricas.folgaTotalPendentes}m). Mesmo no corte máximo, o evento atrasará <strong>{metricas.deficitInabsorvivel} min</strong>.
+                    </span>
+                  ) : metricas.precisaTocarPeso5 ? (
+                    <span className="text-amber-300">
+                      <strong>Pré-Validação Matemática:</strong> As atividades de Peso 1 a 4 oferecem {metricas.folgaSemPeso5}m de folga. Para absorver todos os {atrasoMinutos}m, o agente precisará tirar <strong>{atrasoMinutos - metricas.folgaSemPeso5}m</strong> de itens Peso 5.
+                    </span>
+                  ) : (
+                    <span className="text-emerald-300">
+                      <strong>Pré-Validação Matemática:</strong> Folga saudável! É possível absorver 100% dos +{atrasoMinutos}m de atraso mantendo todos os blocos de Peso 5 intactos.
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Botão de Disparo do Agente */}
+            <div className="lg:col-span-3 flex flex-col justify-center">
+              <button
+                onClick={acionarAgenteIA}
+                disabled={isCalculating || atrasoMinutos <= 0}
+                className="w-full py-4 px-5 rounded-xl font-semibold text-sm bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white shadow-lg shadow-indigo-600/25 transition flex items-center justify-center gap-2.5 cursor-pointer"
+              >
+                {isCalculating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Calculando Cortes...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>Acionar Agente de IA</span>
+                  </>
+                )}
+              </button>
+              <span className="text-[11px] text-center text-slate-400 mt-2">
+                Combina otimização exata + análise contextual Gemini
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* SEÇÃO 3: PLANO DE AÇÃO DO AGENTE (APARECE QUANDO RECALCULADO) */}
+        {aiResult && (
+          <section className="bg-slate-900 border-2 border-indigo-500/40 rounded-2xl p-5 sm:p-6 shadow-2xl space-y-5 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    <Zap className="w-3.5 h-3.5" /> Proposta de Rebalanceamento Pronta
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">
+                    Motor: {aiResult.origem}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-white mt-1">
+                  Parecer Tático do Diretor de Palco
+                </h3>
+                <p className="text-sm text-slate-300">{aiResult.resumo_estrategia}</p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => setAiResult(null)}
+                  className="px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+                >
+                  Descartar
+                </button>
+                <button
+                  onClick={aplicarNovoCronograma}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <Check className="w-4 h-4" />
+                  Aplicar Novo Cronograma
+                </button>
+              </div>
+            </div>
+
+            {aiResult.alerta_estouro && (
+              <div className="bg-rose-950/40 border border-rose-500/40 rounded-xl p-3.5 flex items-center gap-3 text-xs text-rose-200">
+                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{aiResult.alerta_estouro}</span>
+              </div>
+            )}
+
+            {/* Cards de Ação Tática por Atividade Pendente */}
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+                Plano de Ação Operacional (Comparativo de Cortes nas Atividades Pendentes)
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {aiResult.ajustes.map((ajuste) => {
+                  const itemOriginal = cronograma.find((i) => Number(i.id) === Number(ajuste.id));
+                  if (!itemOriginal) return null;
+                  const sofreuCorte = ajuste.corte_min > 0;
+
+                  return (
+                    <div
+                      key={ajuste.id}
+                      className={`rounded-xl p-4 border flex flex-col justify-between transition ${
+                        sofreuCorte
+                          ? 'bg-amber-950/15 border-amber-500/30'
+                          : 'bg-emerald-950/10 border-emerald-500/20'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <span className="text-xs font-semibold text-white leading-snug">
+                            {itemOriginal.atividade}
+                          </span>
+                          <span
+                            className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded shrink-0 ${
+                              itemOriginal.peso === 5
+                                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                                : 'bg-slate-800 text-slate-300'
+                            }`}
+                          >
+                            Peso {itemOriginal.peso}/5
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 my-2.5 font-mono text-xs">
+                          <span className="text-slate-400 line-through">
+                            {itemOriginal.duracaoPrevista} min
+                          </span>
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+                          <span
+                            className={`font-bold text-sm ${
+                              sofreuCorte ? 'text-amber-300' : 'text-emerald-400'
+                            }`}
+                          >
+                            {ajuste.nova_duracao_min} min
+                          </span>
+                          {sofreuCorte ? (
+                            <span className="ml-auto text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              -{ajuste.corte_min} min
+                            </span>
+                          ) : (
+                            <span className="ml-auto text-[11px] font-medium px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 flex items-center gap-1">
+                              <Lock className="w-3 h-3" /> Preservado
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-slate-300 bg-slate-950/70 p-2.5 rounded-lg border border-slate-800/80 mt-2 leading-relaxed">
+                        <strong className="text-slate-200">Diretriz de Palco:</strong> {ajuste.acao_tatica}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* SEÇÃO 4: TABELA INTERATIVA DE CRONOGRAMA E PESOS */}
+        <section className="bg-slate-900/60 border border-slate-800/90 rounded-2xl overflow-hidden shadow-xl">
+          <div className="p-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <Clock className="w-4 h-4 text-indigo-400" />
+                3. Grade do Evento & Parametrização de Elasticidade
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Ajuste durações previstas, durações mínimas (piso físico) e o Peso de Importância (1 a 5) de cada bloco.
+              </p>
+            </div>
+
+            {/* Adicionar nova atividade */}
+            <form onSubmit={addItem} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={novaAtividadeTexto}
+                onChange={(e) => setNovaAtividadeTexto(e.target.value)}
+                placeholder="Nova atividade no cronograma..."
+                className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 w-56"
+              />
+              <button
+                type="submit"
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 border border-slate-700 transition cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-indigo-400" />
+                Adicionar
+              </button>
+            </form>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-800/80 text-[11px] font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/60">
+                  <th className="py-3.5 px-4">Horário</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4">Bloco / Atividade</th>
+                  <th className="py-3.5 px-4 text-center">Previsto (min)</th>
+                  <th className="py-3.5 px-4 text-center">Mínimo (min)</th>
+                  <th className="py-3.5 px-4 text-center">Folga Elástica</th>
+                  <th className="py-3.5 px-4">Peso de Importância (1-5)</th>
+                  {aiResult && <th className="py-3.5 px-4 text-center text-indigo-400">Pós-IA</th>}
+                  <th className="py-3.5 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60 text-sm">
+                {metricas.itensComHorario.map((item) => {
+                  const ajusteIA = aiResult?.ajustes?.find((a) => Number(a.id) === Number(item.id));
+                  const isConcluido = item.status === 'concluido';
+                  const isAndamento = item.status === 'em_andamento';
+
+                  return (
+                    <tr
+                      key={item.id}
+                      className={`transition ${
+                        isConcluido
+                          ? 'bg-slate-950/40 text-slate-500'
+                          : isAndamento
+                          ? 'bg-amber-500/5'
+                          : 'hover:bg-slate-900/80'
+                      }`}
+                    >
+                      {/* Horário Original vs Projetado */}
+                      <td className="py-3.5 px-4 font-mono text-xs whitespace-nowrap">
+                        <div className="text-slate-300 font-medium">
+                          {item.inicioOriginal} - {item.fimOriginal}
+                        </div>
+                        {!isConcluido && atrasoMinutos > 0 && (
+                          <div className="text-[11px] text-amber-400/90">
+                            Real: {item.inicioReal} - {item.fimReal}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Seletor de Status */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <select
+                          value={item.status}
+                          onChange={(e) => updateItem(item.id, 'status', e.target.value)}
+                          className={`text-xs font-medium rounded-lg px-2.5 py-1 border focus:outline-none cursor-pointer ${
+                            isConcluido
+                              ? 'bg-slate-900 border-slate-800 text-slate-400'
+                              : isAndamento
+                              ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                              : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300'
+                          }`}
+                        >
+                          <option value="concluido" className="bg-slate-900 text-slate-300">
+                            ✓ Concluído
+                          </option>
+                          <option value="em_andamento" className="bg-slate-900 text-amber-300">
+                            ▶ Em Andamento
+                          </option>
+                          <option value="pendente" className="bg-slate-900 text-indigo-300">
+                            ⏳ Pendente
+                          </option>
+                        </select>
+                      </td>
+
+                      {/* Nome da Atividade */}
+                      <td className="py-3.5 px-4 min-w-[220px]">
+                        <input
+                          type="text"
+                          value={item.atividade}
+                          onChange={(e) => updateItem(item.id, 'atividade', e.target.value)}
+                          className={`w-full bg-transparent border-b border-transparent focus:border-indigo-500 focus:outline-none text-sm font-medium ${
+                            isConcluido ? 'line-through text-slate-500' : 'text-slate-100'
+                          }`}
+                        />
+                      </td>
+
+                      {/* Duração Prevista */}
+                      <td className="py-3.5 px-4 text-center">
+                        <input
+                          type="number"
+                          min={5}
+                          max={360}
+                          step={5}
+                          disabled={isConcluido}
+                          value={item.duracaoPrevista}
+                          onChange={(e) =>
+                            updateItem(item.id, 'duracaoPrevista', Math.max(1, Number(e.target.value)))
+                          }
+                          className="w-16 text-center font-mono text-xs bg-slate-950 border border-slate-800 rounded-lg py-1 text-white focus:outline-none focus:border-indigo-500 disabled:opacity-40"
+                        />
+                      </td>
+
+                      {/* Duração Mínima */}
+                      <td className="py-3.5 px-4 text-center">
+                        <input
+                          type="number"
+                          min={0}
+                          max={item.duracaoPrevista}
+                          step={5}
+                          disabled={isConcluido}
+                          value={item.duracaoMinima}
+                          onChange={(e) =>
+                            updateItem(item.id, 'duracaoMinima', Math.max(0, Number(e.target.value)))
+                          }
+                          className="w-16 text-center font-mono text-xs bg-slate-950 border border-slate-800 rounded-lg py-1 text-slate-300 focus:outline-none focus:border-indigo-500 disabled:opacity-40"
+                        />
+                      </td>
+
+                      {/* Folga Disponível */}
+                      <td className="py-3.5 px-4 text-center font-mono text-xs">
+                        {item.status === 'pendente' ? (
+                          <span
+                            className={`px-2 py-0.5 rounded ${
+                              item.folga > 0
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                : 'bg-slate-800 text-slate-500'
+                            }`}
+                          >
+                            {item.folga} min
+                          </span>
+                        ) : (
+                          <span className="text-slate-600">—</span>
+                        )}
+                      </td>
+
+                      {/* Seletor de Peso 1 a 5 */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((nivel) => {
+                            const ativo = item.peso >= nivel;
+                            return (
+                              <button
+                                key={nivel}
+                                disabled={isConcluido}
+                                onClick={() => updateItem(item.id, 'peso', nivel)}
+                                className={`w-6 h-6 rounded text-xs font-mono font-bold transition flex items-center justify-center cursor-pointer ${
+                                  ativo
+                                    ? item.peso === 5
+                                      ? 'bg-indigo-500 text-white shadow-sm shadow-indigo-500/40'
+                                      : 'bg-slate-700 text-slate-100'
+                                    : 'bg-slate-950 text-slate-600 border border-slate-800'
+                                } disabled:opacity-40`}
+                                title={`Definir Peso ${nivel}`}
+                              >
+                                {nivel}
+                              </button>
+                            );
+                          })}
+                          {item.peso === 5 && (
+                            <span className="ml-1.5 text-[10px] uppercase tracking-wider font-semibold text-indigo-400 flex items-center gap-0.5">
+                              <Lock className="w-3 h-3" /> Crítico
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Coluna Dinâmica Pós-IA */}
+                      {aiResult && (
+                        <td className="py-3.5 px-4 text-center font-mono text-xs whitespace-nowrap">
+                          {ajusteIA ? (
+                            ajusteIA.corte_min > 0 ? (
+                              <span className="text-amber-300 font-bold bg-amber-500/15 border border-amber-500/30 px-2 py-1 rounded">
+                                {ajusteIA.nova_duracao_min}m (-{ajusteIA.corte_min}m)
+                              </span>
+                            ) : (
+                              <span className="text-emerald-400 font-medium">
+                                {ajusteIA.nova_duracao_min}m (Intacto)
+                              </span>
+                            )
+                          ) : (
+                            <span className="text-slate-600">—</span>
+                          )}
+                        </td>
+                      )}
+
+                      {/* Remover Item */}
+                      <td className="py-3.5 px-4 text-right">
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                          title="Remover bloco"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
